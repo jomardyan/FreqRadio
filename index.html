@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Educational RF and antenna calculator for quick estimation of antenna sizes, transmission line parameters, and link budgets">
+    <title>FreqRadio - RF & Antenna Calculator</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="src/css/main.css">
+    <link rel="stylesheet" href="src/css/calculators.css">
+    <link rel="stylesheet" href="src/css/themes.css">
+    
+    <!-- Chart.js for plotting -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2196F3">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <span class="radio-icon">📡</span>
+                    FreqRadio
+                </h1>
+                <p class="app-subtitle">RF & Antenna Calculator</p>
+                
+                <!-- Theme Toggle and Settings -->
+                <div class="header-controls">
+                    <button id="theme-toggle" class="btn btn-icon" title="Toggle theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <button id="settings-btn" class="btn btn-icon" title="Settings">
+                        ⚙️
+                    </button>
+                    <button id="help-btn" class="btn btn-icon" title="Help">
+                        ❓
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <button class="nav-button active" data-tab="antenna">📏 Antenna</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-button" data-tab="rf-circuits">🔌 RF Circuits</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-button" data-tab="transmission">📶 Transmission</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-button" data-tab="propagation">🌐 Propagation</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-button" data-tab="conversions">🔄 Conversions</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Antenna Calculator Tab -->
+            <section id="antenna" class="tab-content active">
+                <h2>Antenna Calculators</h2>
+                
+                <!-- Wavelength & Basic Elements -->
+                <div class="calculator-card">
+                    <h3>Wavelength & Element Length</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="freq-wavelength">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="freq-wavelength" step="0.001" placeholder="Enter frequency">
+                                <select id="freq-unit-wavelength">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="velocity-factor">Velocity Factor</label>
+                            <input type="number" id="velocity-factor" step="0.01" value="0.95" min="0.1" max="1.0" placeholder="0.95">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="end-effect">End Effect (%)</label>
+                            <input type="number" id="end-effect" step="0.1" value="5" min="0" max="20" placeholder="5">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateWavelength()">Calculate</button>
+                    
+                    <div id="wavelength-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Dipole Calculator -->
+                <div class="calculator-card">
+                    <h3>Dipole Antenna</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="dipole-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="dipole-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="dipole-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="dipole-type">Dipole Type</label>
+                            <select id="dipole-type">
+                                <option value="halfwave">Half-wave (λ/2)</option>
+                                <option value="fullwave">Full-wave (λ)</option>
+                                <option value="quarterwave">Quarter-wave (λ/4)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="dipole-wire-diameter">Wire Diameter</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="dipole-wire-diameter" step="0.1" placeholder="Optional">
+                                <select id="dipole-wire-unit">
+                                    <option value="mm" selected>mm</option>
+                                    <option value="inches">inches</option>
+                                    <option value="AWG">AWG</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateDipole()">Calculate</button>
+                    
+                    <div id="dipole-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Yagi Calculator -->
+                <div class="calculator-card">
+                    <h3>Yagi-Uda Antenna</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="yagi-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="yagi-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="yagi-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="yagi-elements">Number of Elements</label>
+                            <input type="number" id="yagi-elements" min="3" max="20" value="5" placeholder="5">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="yagi-boom-length">Boom Length</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="yagi-boom-length" step="0.01" placeholder="Optional">
+                                <select id="yagi-boom-unit">
+                                    <option value="m" selected>meters</option>
+                                    <option value="ft">feet</option>
+                                    <option value="wavelength">λ</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateYagi()">Calculate</button>
+                    
+                    <div id="yagi-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Loop Antenna -->
+                <div class="calculator-card">
+                    <h3>Loop Antenna</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="loop-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="loop-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="loop-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="loop-type">Loop Type</label>
+                            <select id="loop-type">
+                                <option value="small">Small Loop (< λ/10)</option>
+                                <option value="large">Large Loop (≈ λ)</option>
+                                <option value="quad">Quad Loop</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="loop-shape">Shape</label>
+                            <select id="loop-shape">
+                                <option value="circular">Circular</option>
+                                <option value="square">Square</option>
+                                <option value="rectangular">Rectangular</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateLoop()">Calculate</button>
+                    
+                    <div id="loop-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Patch Antenna -->
+                <div class="calculator-card">
+                    <h3>Patch Antenna</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="patch-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="patch-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="patch-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="patch-substrate-er">Substrate εᵣ</label>
+                            <input type="number" id="patch-substrate-er" step="0.1" value="4.4" placeholder="4.4">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="patch-thickness">Substrate Thickness</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="patch-thickness" step="0.01" placeholder="1.6">
+                                <select id="patch-thickness-unit">
+                                    <option value="mm" selected>mm</option>
+                                    <option value="inches">inches</option>
+                                    <option value="mil">mil</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculatePatch()">Calculate</button>
+                    
+                    <div id="patch-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- RF Circuits Tab -->
+            <section id="rf-circuits" class="tab-content">
+                <h2>RF Circuit Calculators</h2>
+                
+                <!-- LC Resonance -->
+                <div class="calculator-card">
+                    <h3>LC Resonance</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="lc-inductance">Inductance (L)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lc-inductance" step="0.001" placeholder="Enter inductance">
+                                <select id="lc-l-unit">
+                                    <option value="uH" selected>µH</option>
+                                    <option value="nH">nH</option>
+                                    <option value="mH">mH</option>
+                                    <option value="H">H</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="lc-capacitance">Capacitance (C)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lc-capacitance" step="0.001" placeholder="Enter capacitance">
+                                <select id="lc-c-unit">
+                                    <option value="pF" selected>pF</option>
+                                    <option value="nF">nF</option>
+                                    <option value="uF">µF</option>
+                                    <option value="mF">mF</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateLCResonance()">Calculate</button>
+                    
+                    <div id="lc-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Reactance Calculator -->
+                <div class="calculator-card">
+                    <h3>Reactance Calculator</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="react-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="react-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="react-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="component-type">Component</label>
+                            <select id="component-type">
+                                <option value="inductor">Inductor</option>
+                                <option value="capacitor">Capacitor</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="component-value">Value</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="component-value" step="0.001" placeholder="Enter value">
+                                <select id="component-unit">
+                                    <option value="uH">µH</option>
+                                    <option value="nH">nH</option>
+                                    <option value="mH">mH</option>
+                                    <option value="pF">pF</option>
+                                    <option value="nF">nF</option>
+                                    <option value="uF">µF</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateReactance()">Calculate</button>
+                    
+                    <div id="reactance-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- RLC Circuit -->
+                <div class="calculator-card">
+                    <h3>RLC Circuit Analysis</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="rlc-resistance">Resistance (R)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="rlc-resistance" step="0.1" placeholder="Enter resistance">
+                                <select id="rlc-r-unit">
+                                    <option value="ohm" selected>Ω</option>
+                                    <option value="kohm">kΩ</option>
+                                    <option value="mohm">MΩ</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="rlc-inductance">Inductance (L)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="rlc-inductance" step="0.001" placeholder="Enter inductance">
+                                <select id="rlc-l-unit">
+                                    <option value="uH" selected>µH</option>
+                                    <option value="nH">nH</option>
+                                    <option value="mH">mH</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="rlc-capacitance">Capacitance (C)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="rlc-capacitance" step="0.001" placeholder="Enter capacitance">
+                                <select id="rlc-c-unit">
+                                    <option value="pF" selected>pF</option>
+                                    <option value="nF">nF</option>
+                                    <option value="uF">µF</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="rlc-config">Configuration</label>
+                            <select id="rlc-config">
+                                <option value="series" selected>Series</option>
+                                <option value="parallel">Parallel</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateRLC()">Calculate</button>
+                    
+                    <div id="rlc-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transmission Line Tab -->
+            <section id="transmission" class="tab-content">
+                <h2>Transmission Line & Matching</h2>
+                
+                <!-- VSWR Calculator -->
+                <div class="calculator-card">
+                    <h3>VSWR & Reflection</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="vswr-input-type">Input Type</label>
+                            <select id="vswr-input-type" onchange="updateVSWRInputs()">
+                                <option value="impedances">Source & Load Z</option>
+                                <option value="vswr">VSWR</option>
+                                <option value="reflection">Reflection Coefficient</option>
+                                <option value="return-loss">Return Loss</option>
+                            </select>
+                        </div>
+                        
+                        <div class="vswr-inputs" id="vswr-impedance-inputs">
+                            <div class="input-group">
+                                <label for="vswr-z0">Source Impedance (Z₀)</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="vswr-z0" step="0.1" value="50" placeholder="50">
+                                    <span class="unit">Ω</span>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="vswr-zl">Load Impedance (Z_L)</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="vswr-zl" step="0.1" placeholder="Enter load Z">
+                                    <span class="unit">Ω</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateVSWR()">Calculate</button>
+                    
+                    <div id="vswr-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Transmission Line Parameters -->
+                <div class="calculator-card">
+                    <h3>Transmission Line Parameters</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="tl-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="tl-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="tl-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="tl-length">Physical Length</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="tl-length" step="0.01" placeholder="Enter length">
+                                <select id="tl-length-unit">
+                                    <option value="m" selected>meters</option>
+                                    <option value="ft">feet</option>
+                                    <option value="cm">cm</option>
+                                    <option value="inches">inches</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="tl-vf">Velocity Factor</label>
+                            <input type="number" id="tl-vf" step="0.01" value="0.66" min="0.1" max="1.0" placeholder="0.66">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="tl-loss">Loss (dB/100m @ 1GHz)</label>
+                            <input type="number" id="tl-loss" step="0.1" placeholder="Optional">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateTransmissionLine()">Calculate</button>
+                    
+                    <div id="tl-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Matching Networks -->
+                <div class="calculator-card">
+                    <h3>L-Network Matching</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="match-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="match-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="match-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="match-rs">Source Resistance</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="match-rs" step="0.1" value="50" placeholder="50">
+                                <span class="unit">Ω</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="match-rl">Load Resistance</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="match-rl" step="0.1" placeholder="Enter load R">
+                                <span class="unit">Ω</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="match-q">Desired Q (optional)</label>
+                            <input type="number" id="match-q" step="0.1" placeholder="Auto">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateMatching()">Calculate</button>
+                    
+                    <div id="matching-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Propagation Tab -->
+            <section id="propagation" class="tab-content">
+                <h2>Propagation & Link Budget</h2>
+                
+                <!-- Free Space Path Loss -->
+                <div class="calculator-card">
+                    <h3>Free Space Path Loss (FSPL)</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="fspl-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="fspl-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="fspl-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="fspl-distance">Distance</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="fspl-distance" step="0.001" placeholder="Enter distance">
+                                <select id="fspl-distance-unit">
+                                    <option value="km" selected>km</option>
+                                    <option value="miles">miles</option>
+                                    <option value="m">meters</option>
+                                    <option value="ft">feet</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateFSPL()">Calculate</button>
+                    
+                    <div id="fspl-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Link Budget -->
+                <div class="calculator-card">
+                    <h3>Link Budget Calculator</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="lb-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lb-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="lb-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="lb-distance">Distance</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lb-distance" step="0.001" placeholder="Enter distance">
+                                <select id="lb-distance-unit">
+                                    <option value="km" selected>km</option>
+                                    <option value="miles">miles</option>
+                                    <option value="m">meters</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="lb-tx-power">TX Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lb-tx-power" step="0.1" placeholder="Enter TX power">
+                                <select id="lb-tx-power-unit">
+                                    <option value="dBm" selected>dBm</option>
+                                    <option value="dBW">dBW</option>
+                                    <option value="W">Watts</option>
+                                    <option value="mW">mW</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="lb-tx-gain">TX Antenna Gain</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lb-tx-gain" step="0.1" value="0" placeholder="0">
+                                <span class="unit">dBi</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="lb-rx-gain">RX Antenna Gain</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lb-rx-gain" step="0.1" value="0" placeholder="0">
+                                <span class="unit">dBi</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="lb-tx-loss">TX Line Loss</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lb-tx-loss" step="0.1" value="0" placeholder="0">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="lb-rx-loss">RX Line Loss</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lb-rx-loss" step="0.1" value="0" placeholder="0">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="lb-other-loss">Other Losses</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lb-other-loss" step="0.1" value="0" placeholder="0">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateLinkBudget()">Calculate</button>
+                    
+                    <div id="lb-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Fresnel Zone -->
+                <div class="calculator-card">
+                    <h3>Fresnel Zone Calculator</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="fresnel-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="fresnel-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="fresnel-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="fresnel-distance">Total Distance</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="fresnel-distance" step="0.001" placeholder="Enter distance">
+                                <select id="fresnel-distance-unit">
+                                    <option value="km" selected>km</option>
+                                    <option value="miles">miles</option>
+                                    <option value="m">meters</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="fresnel-position">Position from TX</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="fresnel-position" step="0.001" placeholder="Mid-point">
+                                <select id="fresnel-position-unit">
+                                    <option value="km" selected>km</option>
+                                    <option value="miles">miles</option>
+                                    <option value="m">meters</option>
+                                    <option value="percent">%</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateFresnel()">Calculate</button>
+                    
+                    <div id="fresnel-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Conversions Tab -->
+            <section id="conversions" class="tab-content">
+                <h2>Unit Conversions</h2>
+                
+                <!-- Frequency & Wavelength -->
+                <div class="calculator-card">
+                    <h3>Frequency ↔ Wavelength</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="conv-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="conv-freq" step="0.001" placeholder="Enter frequency">
+                                <select id="conv-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                    <option value="Hz">Hz</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="conv-wavelength">Wavelength</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="conv-wavelength" step="0.001" placeholder="Enter wavelength">
+                                <select id="conv-wavelength-unit">
+                                    <option value="m" selected>meters</option>
+                                    <option value="cm">cm</option>
+                                    <option value="mm">mm</option>
+                                    <option value="ft">feet</option>
+                                    <option value="inches">inches</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="conv-medium">Medium</label>
+                            <select id="conv-medium">
+                                <option value="air" selected>Free Space/Air</option>
+                                <option value="coax">Coax (VF=0.66)</option>
+                                <option value="custom">Custom VF</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group" id="conv-vf-group" style="display: none;">
+                            <label for="conv-vf">Velocity Factor</label>
+                            <input type="number" id="conv-vf" step="0.01" value="1.0" min="0.1" max="1.0">
+                        </div>
+                    </div>
+                    
+                    <div class="conversion-buttons">
+                        <button class="btn btn-calculate" onclick="convertFreqToWavelength()">Freq → λ</button>
+                        <button class="btn btn-calculate" onclick="convertWavelengthToFreq()">λ → Freq</button>
+                    </div>
+                    
+                    <div id="freq-wavelength-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Power Conversions -->
+                <div class="calculator-card">
+                    <h3>Power Conversions</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="power-input">Input Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="power-input" step="0.001" placeholder="Enter power">
+                                <select id="power-input-unit">
+                                    <option value="dBm" selected>dBm</option>
+                                    <option value="dBW">dBW</option>
+                                    <option value="W">Watts</option>
+                                    <option value="mW">mW</option>
+                                    <option value="kW">kW</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="convertPower()">Convert All</button>
+                    
+                    <div id="power-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Field Strength -->
+                <div class="calculator-card">
+                    <h3>Field Strength & Power Density</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="field-power">Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="field-power" step="0.001" placeholder="Enter power">
+                                <select id="field-power-unit">
+                                    <option value="W" selected>Watts</option>
+                                    <option value="dBm">dBm</option>
+                                    <option value="dBW">dBW</option>
+                                    <option value="kW">kW</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="field-gain">Antenna Gain</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="field-gain" step="0.1" value="0" placeholder="0">
+                                <select id="field-gain-unit">
+                                    <option value="dBi" selected>dBi</option>
+                                    <option value="dBd">dBd</option>
+                                    <option value="linear">Linear</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="field-distance">Distance</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="field-distance" step="0.1" placeholder="Enter distance">
+                                <select id="field-distance-unit">
+                                    <option value="m" selected>meters</option>
+                                    <option value="km">km</option>
+                                    <option value="ft">feet</option>
+                                    <option value="miles">miles</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="field-freq">Frequency (for E-field)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="field-freq" step="0.001" placeholder="Optional">
+                                <select id="field-freq-unit">
+                                    <option value="MHz" selected>MHz</option>
+                                    <option value="kHz">kHz</option>
+                                    <option value="GHz">GHz</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-calculate" onclick="calculateFieldStrength()">Calculate</button>
+                    
+                    <div id="field-results" class="results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="disclaimer">
+                <strong>Disclaimer:</strong> This app is for educational and preliminary design purposes only. 
+                Calculations are approximations and may not reflect real-world performance. 
+                Always validate designs with proper measurements and simulations.
+            </p>
+            <p class="footer-info">
+                FreqRadio v0.1 | 
+                <a href="#" onclick="showHelp()">Help</a> | 
+                <a href="#" onclick="showAbout()">About</a> | 
+                <a href="https://github.com/jomardyan/FreqRadio" target="_blank">GitHub</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('help-modal')">&times;</span>
+            <h2>Help & Usage</h2>
+            <div id="help-content">
+                <!-- Help content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('settings-modal')">&times;</span>
+            <h2>Settings</h2>
+            <div id="settings-content">
+                <!-- Settings content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Canvas (Hidden by default) -->
+    <canvas id="chart-canvas" style="display: none;"></canvas>
+
+    <!-- JavaScript Files -->
+    <script src="src/js/constants.js"></script>
+    <script src="src/js/utils.js"></script>
+    <script src="src/js/conversions.js"></script>
+    <script src="src/js/antenna-calculators.js"></script>
+    <script src="src/js/rf-calculators.js"></script>
+    <script src="src/js/transmission-calculators.js"></script>
+    <script src="src/js/propagation-calculators.js"></script>
+    <script src="src/js/plotting.js"></script>
+    <script src="src/js/ui.js"></script>
+    <script src="src/js/main.js"></script>
+</body>
+</html>
