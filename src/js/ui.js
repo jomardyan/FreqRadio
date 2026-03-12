@@ -114,7 +114,16 @@ function getCalculatorForInput(inputId) {
         'fresnel-freq': calculateFresnel,
         'conv-freq': convertFreqToWavelength,
         'power-input': convertPower,
-        'field-power': calculateFieldStrength
+        'field-power': calculateFieldStrength,
+        // Radar & Satellite
+        'radar-freq':      calculateRadarRange,
+        'radar-rcs':       calculateRadarRange,
+        'radar-prf':       calculateRadarPulse,
+        'radar-pw':        calculateRadarPulse,
+        'sat-altitude':    calculateOrbitalParameters,
+        'slb-freq':        calculateSatelliteLinkBudget,
+        'slb-altitude':    calculateSatelliteLinkBudget,
+        'const-altitude':  calculateConstellationCoverage
     };
     
     return calculatorMap[inputId] || null;
@@ -321,6 +330,7 @@ function showHelp() {
                 <li><strong>Transmission:</strong> VSWR, transmission line parameters, and matching networks</li>
                 <li><strong>Propagation:</strong> Path loss, link budgets, and Fresnel zones</li>
                 <li><strong>Conversions:</strong> Frequency/wavelength, power, and field strength conversions</li>
+                <li><strong>Radar &amp; Satellite:</strong> Radar range equation, pulse parameters, EW/jamming, orbital parameters, Starlink/LEO/GEO link budget, constellation coverage</li>
             </ul>
         </div>
         
@@ -358,7 +368,7 @@ function showHelp() {
             <ul>
                 <li><code>Tab</code> - Navigate between inputs</li>
                 <li><code>Enter</code> - Calculate current form</li>
-                <li><code>Ctrl+1-5</code> - Switch between tabs</li>
+                <li><code>Ctrl+1-6</code> - Switch between tabs</li>
                 <li><code>Ctrl+T</code> - Toggle theme</li>
                 <li><code>F1</code> - Show this help</li>
             </ul>
@@ -406,10 +416,10 @@ function closeModal(modalId) {
  */
 function setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
-        // Tab switching (Ctrl+1 through Ctrl+5)
-        if (e.ctrlKey && e.key >= '1' && e.key <= '5') {
+        // Tab switching (Ctrl+1 through Ctrl+6)
+        if (e.ctrlKey && e.key >= '1' && e.key <= '6') {
             e.preventDefault();
-            const tabs = ['antenna', 'rf-circuits', 'transmission', 'propagation', 'conversions'];
+            const tabs = ['antenna', 'rf-circuits', 'transmission', 'propagation', 'conversions', 'radar-satellite'];
             const tabIndex = parseInt(e.key) - 1;
             if (tabs[tabIndex]) {
                 showTab(tabs[tabIndex]);
