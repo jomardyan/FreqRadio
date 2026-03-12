@@ -13,10 +13,12 @@
 | **📶 Transmission** | VSWR, reflection coefficient, return loss, mismatch loss, transmission line parameters, L-network impedance matching |
 | **🌐 Propagation** | Free Space Path Loss (FSPL), link budget, Fresnel zone radii, field strength and power density |
 | **🔄 Conversions** | Frequency ↔ wavelength, power units (W, mW, kW, dBm, dBW), field strength conversions |
+| **🛰️ Radar & Satellite** | Radar range equation, pulse parameters, EW/jamming, satellite orbital parameters, Starlink link budget, constellation coverage |
+| **📡 IoT** | LoRa/LoRaWAN, NB-IoT, LTE-M, Sigfox, BLE, Zigbee, Z-Wave link budgets; battery life estimator; BLE PHY calculator; technology comparison |
 
 Additional features:
 - 🌙 Light / Dark theme toggle (persisted across sessions)
-- ⌨️ Keyboard shortcuts (`Ctrl+T` theme, `Ctrl+1–5` tabs, `F1` help, `Enter` calculate)
+- ⌨️ Keyboard shortcuts (`Ctrl+T` theme, `Ctrl+1–7` tabs, `F1` help, `Enter` calculate)
 - 💾 Settings and presets saved to `localStorage`
 - 🔗 Shareable configuration URLs
 - 📱 Progressive Web App (PWA) — installable on mobile and desktop
@@ -63,6 +65,8 @@ FreqRadio/
         ├── transmission-calculators.js# VSWR, transmission line, L-network matching
         ├── propagation-calculators.js # FSPL, link budget, Fresnel zones
         ├── conversions.js             # Unit conversion tools
+        ├── radar-satellite-calculators.js # Radar, EW, satellite orbital/link/constellation
+        ├── iot-calculators.js         # LoRa, NB-IoT, BLE, Zigbee, battery life estimator
         ├── plotting.js                # Chart.js integration
         ├── ui.js                      # Theme, tabs, modals, settings, presets
         └── main.js                    # App initialisation, PWA, URL sharing
@@ -75,7 +79,7 @@ FreqRadio/
 | Shortcut | Action |
 |---|---|
 | `Ctrl+T` | Toggle light / dark theme |
-| `Ctrl+1` – `Ctrl+5` | Switch between tabs |
+| `Ctrl+1` – `Ctrl+7` | Switch between tabs |
 | `F1` | Open help |
 | `Enter` (in any input) | Run the calculator for that section |
 

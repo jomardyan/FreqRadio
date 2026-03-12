@@ -725,11 +725,21 @@ function calculateBLE() {
 
         const sleepUs = intervalUs - activeTxUs - activeRxUs;
 
+        // If active time exceeds the interval, the schedule is impossible.
+        // This would otherwise clamp to zero sleep and produce >100% duty cycle
+        // and optimistic battery life estimates.
+        if (sleepUs < 0) {
+            throw new Error(
+                'Selected BLE interval is too short for the chosen PHY, payload size, and mode. ' +
+                'Increase the connection/advertising interval or reduce the payload size / use a faster PHY.'
+            );
+        }
+
         // ── Average current ──────────────────────────────────────────────────
         const avgCurrentMa = (
             txCurrentMa       * activeTxUs +
             rxCurrentMaNorm   * activeRxUs +
-            sleepMa           * Math.max(sleepUs, 0)
+            sleepMa           * sleepUs
         ) / intervalUs;
 
         const txDutyPct = (activeTxUs / intervalUs) * 100;

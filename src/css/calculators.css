@@ -362,23 +362,23 @@
 .iot-comparison-table th,
 .iot-comparison-table td {
     padding: 0.4rem 0.6rem;
-    border: 1px solid var(--border-color, #e0e0e0);
+    border: 1px solid var(--color-border, #e0e0e0);
     text-align: left;
     white-space: nowrap;
 }
 
 .iot-comparison-table thead th {
-    background: var(--primary-color, #1a73e8);
+    background: var(--color-primary, #1a73e8);
     color: #fff;
     font-weight: 600;
 }
 
 .iot-comparison-table tbody tr:nth-child(even) {
-    background: var(--surface-alt, #f5f5f5);
+    background: var(--color-bg-result, #f5f5f5);
 }
 
 .iot-comparison-table tbody tr:hover {
-    background: var(--hover-bg, #e8f0fe);
+    background: var(--color-bg-hover, #e8f0fe);
 }
 
 .iot-comparison-wide td:last-child {
@@ -388,5 +388,5 @@
 
 .highlight-row {
     font-weight: 700;
-    background: var(--hover-bg, #e8f0fe) !important;
+    background: var(--color-bg-hover, #e8f0fe) !important;
 }

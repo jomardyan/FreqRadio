@@ -202,6 +202,7 @@ function calculateRadarPulse() {
     const peakPower  = parseFloat(document.getElementById('radar-peak-power').value);
     const frequency  = parseFloat(document.getElementById('radar-pulse-freq').value);
     const freqUnit   = document.getElementById('radar-pulse-freq-unit').value;
+    const cpiPulses  = parseInt(document.getElementById('radar-cpi-pulses').value, 10);
 
     if (!validateInput(prf)) {
         showError('radar-prf', 'Please enter a valid PRF');
@@ -260,18 +261,29 @@ function calculateRadarPulse() {
         }
 
         if (!isNaN(frequency) && frequency > 0) {
-            const freqHz     = frequency * CONSTANTS.FREQ_UNITS[freqUnit];
-            const lambdaM    = CONSTANTS.SPEED_OF_LIGHT / freqHz;
-            const maxVelMs   = lambdaM * prf / 2;   // ±v_max (unambiguous)
-            const velResMs   = lambdaM / (2 * priSec); // single-pulse (no CPI)
+            const freqHz   = frequency * CONSTANTS.FREQ_UNITS[freqUnit];
+            const lambdaM  = CONSTANTS.SPEED_OF_LIGHT / freqHz;
+            const maxVelMs = lambdaM * prf / 2;   // ±v_max (unambiguous)
             html += `
                 <div class="result-item">
                     <strong>Velocity (Doppler):</strong>
                     <ul>
                         <li>Max unambig. vel = ±${formatNumber(maxVelMs, 2)} m/s</li>
                         <li>Max unambig. vel = ±${formatNumber(maxVelMs * 3.6, 2)} km/h</li>
-                        <li>Max unambig. vel = ±${formatNumber(maxVelMs * 1.944, 2)} knots</li>
-                        <li>Velocity resolution = ${formatNumber(velResMs, 2)} m/s</li>
+                        <li>Max unambig. vel = ±${formatNumber(maxVelMs * 1.944, 2)} knots</li>`;
+
+            if (!isNaN(cpiPulses) && cpiPulses >= 2) {
+                // Velocity resolution = v_max / N  (coherent burst of N pulses)
+                const velResMs = maxVelMs / cpiPulses;
+                html += `
+                        <li>Vel. resolution (N=${cpiPulses}) = ${formatNumber(velResMs, 3)} m/s = ${formatNumber(velResMs * 3.6, 3)} km/h</li>
+                        <li>CPI duration = ${formatNumber(cpiPulses / prf * 1000, 2)} ms</li>`;
+            } else {
+                html += `
+                        <li><em>Enter CPI Pulses N ≥ 2 to compute velocity resolution.</em></li>`;
+            }
+
+            html += `
                     </ul>
                 </div>`;
         }
