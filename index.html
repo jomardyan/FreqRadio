@@ -1536,6 +1536,92 @@
                     </div>
                 </div>
 
+                <!-- ── 5. BLE Calculator ── -->
+                <div class="calculator-card">
+                    <h3>BLE (Bluetooth Low Energy) Calculator</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="ble-phy">PHY Mode</label>
+                            <select id="ble-phy">
+                                <option value="1M" selected>1M PHY — 1 Mbps (BLE 4.0+)</option>
+                                <option value="2M">2M PHY — 2 Mbps (BLE 5.0+)</option>
+                                <option value="coded_s2">Coded S=2 — 500 kbps (BLE 5.0+)</option>
+                                <option value="coded_s8">Coded S=8 — 125 kbps (BLE 5.0+, long range)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-mode">Operating Mode</label>
+                            <select id="ble-mode">
+                                <option value="advertising" selected>Advertising (3 channels)</option>
+                                <option value="connection">Connection (1 TX + 1 RX)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-payload">Payload Length</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-payload" step="1" min="0" max="255" value="27" placeholder="27">
+                                <span class="unit">bytes</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-tx-power">TX Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-tx-power" step="1" min="-20" max="20" value="0" placeholder="0">
+                                <span class="unit">dBm</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-interval">Adv / Connection Interval</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-interval" step="0.625" min="7.5" value="1000" placeholder="1000">
+                                <span class="unit">ms</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-tx-current">TX Current</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-tx-current" step="0.1" value="9" placeholder="9">
+                                <span class="unit">mA</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-rx-current">RX Current</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-rx-current" step="0.1" value="7" placeholder="7">
+                                <span class="unit">mA</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-sleep-current">Sleep Current</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-sleep-current" step="0.1" value="2" placeholder="2">
+                                <span class="unit">µA</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-battery">Battery Capacity (optional)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-battery" step="1" placeholder="e.g. 1000">
+                                <span class="unit">mAh</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateBLE()">Calculate</button>
+
+                    <div id="ble-results" class="results">
+                        <!-- Results populated by calculateBLE() -->
+                    </div>
+                </div>
+
             </section>
         </div>
     </main>

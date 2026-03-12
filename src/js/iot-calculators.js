@@ -591,6 +591,287 @@ function renderIoTComparison() {
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. BLE (Bluetooth Low Energy) Calculator
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * BLE PHY parameters per Bluetooth Core Specification 5.x
+ * Sensitivity values are typical for a good-quality radio (e.g. nRF52840).
+ */
+const BLE_PHY = {
+    '1M': {
+        label:          'BLE 1M PHY (1 Mbps)',
+        symbolRateMbps: 1,
+        datRateMbps:    1,
+        sensitivityDbm: -96,
+        preambleBytes:  1,
+        version:        'BLE 4.0+',
+        /** ToA in µs: (preamble + AA=4 + PDU_header=2 + payload + CRC=3) × 8 µs */
+        toaUs: (payloadBytes) => (1 + 4 + 2 + payloadBytes + 3) * 8,
+    },
+    '2M': {
+        label:          'BLE 2M PHY (2 Mbps)',
+        symbolRateMbps: 2,
+        datRateMbps:    2,
+        sensitivityDbm: -92,
+        preambleBytes:  2,
+        version:        'BLE 5.0+',
+        /** ToA in µs: (preamble=2 + AA=4 + PDU_header=2 + payload + CRC=3) × 4 µs */
+        toaUs: (payloadBytes) => (2 + 4 + 2 + payloadBytes + 3) * 4,
+    },
+    'coded_s2': {
+        label:          'BLE Coded S=2 (500 kbps)',
+        symbolRateMbps: 0.5,
+        datRateMbps:    0.5,
+        sensitivityDbm: -100,
+        preambleBytes:  10,
+        version:        'BLE 5.0+',
+        /**
+         * Coded S=2 ToA per BT spec:
+         *   FEC block 1: preamble(80µs) + AA(32µs) + CI(2µs) + TERM1(3µs) = 117 µs
+         *   FEC block 2: (PDU_header=2 + payload + CRC=3) × 8 bits × 2 µs/bit
+         *              + TERM2: 3 bits × 2 µs = 6 µs
+         */
+        toaUs: (payloadBytes) => 117 + (2 + payloadBytes + 3) * 16 + 6,
+    },
+    'coded_s8': {
+        label:          'BLE Coded S=8 (125 kbps)',
+        symbolRateMbps: 0.125,
+        datRateMbps:    0.125,
+        sensitivityDbm: -103,
+        preambleBytes:  10,
+        version:        'BLE 5.0+',
+        /**
+         * Coded S=8 ToA per BT spec:
+         *   FEC block 1: same 117 µs
+         *   FEC block 2: (PDU_header=2 + payload + CRC=3) × 8 bits × 8 µs/bit
+         *              + TERM2: 3 bits × 8 µs = 24 µs
+         */
+        toaUs: (payloadBytes) => 117 + (2 + payloadBytes + 3) * 64 + 24,
+    },
+};
+
+/** BLE advertising channel IFS (inter-frame spacing) = 150 µs */
+const BLE_IFS_US = 150;
+/** Number of primary advertising channels */
+const BLE_ADV_CHANNELS = 3;
+
+/**
+ * BLE comprehensive calculator: Time on Air, link budget, power, and PHY comparison.
+ */
+function calculateBLE() {
+    const phyKey       = document.getElementById('ble-phy').value;
+    const txDbm        = parseFloat(document.getElementById('ble-tx-power').value);
+    const payloadBytes = parseInt(document.getElementById('ble-payload').value);
+    const mode         = document.getElementById('ble-mode').value;      // 'advertising' | 'connection'
+    const intervalMs   = parseFloat(document.getElementById('ble-interval').value);
+    const txCurrentMa  = parseFloat(document.getElementById('ble-tx-current').value);
+    const rxCurrentMa  = parseFloat(document.getElementById('ble-rx-current').value);
+    const sleepUa      = parseFloat(document.getElementById('ble-sleep-current').value) || 2;
+    const battMah      = parseFloat(document.getElementById('ble-battery').value);
+    const freqMHz      = 2440; // BLE center of 2.4 GHz band (advertising channels avg)
+    const rxGainDbi    = 0;
+
+    const phy = BLE_PHY[phyKey];
+    if (!phy) {
+        showError('ble-phy', 'Please select a PHY mode');
+        return;
+    }
+    if (isNaN(txDbm)) {
+        showError('ble-tx-power', 'Please enter a valid TX power');
+        return;
+    }
+    if (!validateInput(payloadBytes, 0) || payloadBytes > 255) {
+        showError('ble-payload', 'Payload must be 0–255 bytes');
+        return;
+    }
+    if (!validateInput(intervalMs)) {
+        showError('ble-interval', 'Please enter a valid interval');
+        return;
+    }
+    if (!validateInput(txCurrentMa)) {
+        showError('ble-tx-current', 'Please enter a valid TX current');
+        return;
+    }
+    clearError('ble-phy');
+    clearError('ble-tx-power');
+    clearError('ble-payload');
+    clearError('ble-interval');
+    clearError('ble-tx-current');
+
+    try {
+        const freqHz         = freqMHz * 1e6;
+        const sleepMa        = sleepUa / 1000;
+        const intervalUs     = intervalMs * 1000;
+        // Normalize optional fields that are not required inputs
+        const rxCurrentMaNorm = isNaN(rxCurrentMa) ? 0 : rxCurrentMa;
+
+        // ── Time on Air ──────────────────────────────────────────────────────
+        const toaPerPktUs = phy.toaUs(payloadBytes);
+
+        let activeTxUs, activeRxUs, txEventsPerInterval;
+        if (mode === 'advertising') {
+            // 3 advertising channels; IFS between channels
+            activeTxUs = BLE_ADV_CHANNELS * toaPerPktUs + (BLE_ADV_CHANNELS - 1) * BLE_IFS_US;
+            activeRxUs = 0; // no RX for non-connectable advertising
+            txEventsPerInterval = BLE_ADV_CHANNELS;
+        } else {
+            // Connection mode: one TX + one RX per connection event
+            activeTxUs = toaPerPktUs;
+            activeRxUs = toaPerPktUs + BLE_IFS_US; // peer responds with its own packet
+            txEventsPerInterval = 1;
+        }
+
+        const sleepUs = intervalUs - activeTxUs - activeRxUs;
+
+        // ── Average current ──────────────────────────────────────────────────
+        const avgCurrentMa = (
+            txCurrentMa       * activeTxUs +
+            rxCurrentMaNorm   * activeRxUs +
+            sleepMa           * Math.max(sleepUs, 0)
+        ) / intervalUs;
+
+        const txDutyPct = (activeTxUs / intervalUs) * 100;
+
+        // ── Battery life ─────────────────────────────────────────────────────
+        let lifetimeDays = NaN, lifetimeYears = NaN;
+        if (!isNaN(battMah) && battMah > 0) {
+            const usableMah = battMah * 0.85;
+            lifetimeDays  = usableMah / avgCurrentMa / 24;
+            lifetimeYears = lifetimeDays / 365.25;
+        }
+
+        // ── Link budget & range ───────────────────────────────────────────────
+        const eirpDbm    = txDbm + rxGainDbi; // 0 dBi antenna
+        const mclDb      = eirpDbm - phy.sensitivityDbm + rxGainDbi;
+        const maxRangeM  = iotMaxRange(txDbm, 0, phy.sensitivityDbm, 0, freqHz, 0);
+        const indoorRangeM = iotMaxRange(txDbm, 0, phy.sensitivityDbm, 0, freqHz, 25); // 25 dB indoor margin
+
+        // ── Effective throughput (payload bits / total packet air time) ───────
+        const effectiveThroughputKbps = (payloadBytes > 0)
+            ? (payloadBytes * 8 / toaPerPktUs * 1000) // kbps
+            : 0;
+
+        // ── PHY comparison table ──────────────────────────────────────────────
+        const compRows = Object.entries(BLE_PHY).map(([key, p]) => {
+            const toa   = p.toaUs(payloadBytes);
+            const adv   = BLE_ADV_CHANNELS * toa + (BLE_ADV_CHANNELS - 1) * BLE_IFS_US;
+            const rng   = iotMaxRange(txDbm, 0, p.sensitivityDbm, 0, freqHz, 0);
+            const rngIn = iotMaxRange(txDbm, 0, p.sensitivityDbm, 0, freqHz, 25);
+            const tput  = payloadBytes > 0 ? formatNumber(payloadBytes * 8 / toa * 1000, 1) : '—';
+            const highlight = key === phyKey ? 'class="highlight-row"' : '';
+            return `<tr ${highlight}>
+                <td>${p.label}</td>
+                <td>${p.version}</td>
+                <td>${formatNumber(p.sensitivityDbm, 0)} dBm</td>
+                <td>${formatNumber(toa, 0)} µs</td>
+                <td>${formatNumber(adv / 1000, 3)} ms</td>
+                <td>${formatNumber(rng, 1)} m</td>
+                <td>${formatNumber(rngIn, 1)} m</td>
+                <td>${tput} kbps</td>
+            </tr>`;
+        }).join('');
+
+        // ── Battery life rating ───────────────────────────────────────────────
+        let lifeClass, lifeLabel;
+        if (isNaN(lifetimeYears)) {
+            lifeClass = ''; lifeLabel = '—';
+        } else if (lifetimeYears >= 5) {
+            lifeClass = 'quality-excellent'; lifeLabel = `${formatNumber(lifetimeDays, 0)} days (Excellent)`;
+        } else if (lifetimeYears >= 1) {
+            lifeClass = 'quality-good';      lifeLabel = `${formatNumber(lifetimeDays, 0)} days (Good)`;
+        } else {
+            lifeClass = 'quality-poor';      lifeLabel = `${formatNumber(lifetimeDays, 0)} days (Poor)`;
+        }
+
+        const intervalLabel = mode === 'advertising'
+            ? `Advertising interval = ${intervalMs} ms`
+            : `Connection interval = ${intervalMs} ms`;
+
+        const html = `
+            <h4>BLE Calculator Results — ${phy.label}</h4>
+            <div class="result-grid">
+                <div class="result-item">
+                    <strong>Time on Air (${payloadBytes}B payload):</strong>
+                    <ul>
+                        <li>Per packet = ${formatNumber(toaPerPktUs, 1)} µs</li>
+                        ${mode === 'advertising'
+                            ? `<li>3-channel adv event = ${formatNumber(activeTxUs / 1000, 3)} ms</li>`
+                            : `<li>TX slot (conn) = ${formatNumber(activeTxUs, 1)} µs</li>
+                               <li>RX window = ${formatNumber(activeRxUs, 1)} µs</li>`}
+                        <li>TX duty cycle = ${formatNumber(txDutyPct, 4)}%</li>
+                        <li>Effective throughput = ${payloadBytes > 0 ? formatNumber(effectiveThroughputKbps, 2) + ' kbps' : '—'}</li>
+                        <li>${intervalLabel}</li>
+                    </ul>
+                </div>
+                <div class="result-item">
+                    <strong>Link Budget:</strong>
+                    <ul>
+                        <li>TX power = ${formatNumber(txDbm, 1)} dBm</li>
+                        <li>Sensitivity = ${formatNumber(phy.sensitivityDbm, 0)} dBm</li>
+                        <li>MCL = ${formatNumber(mclDb, 1)} dB</li>
+                        <li>Max range (FSPL) = ${formatNumber(maxRangeM, 1)} m</li>
+                        <li>Indoor range (25 dB margin) = ${formatNumber(indoorRangeM, 1)} m</li>
+                    </ul>
+                </div>
+                <div class="result-item">
+                    <strong>Power Consumption:</strong>
+                    <ul>
+                        <li>TX current = ${formatNumber(txCurrentMa, 1)} mA</li>
+                        <li>Sleep current = ${formatNumber(sleepUa, 1)} µA</li>
+                        <li>Average = ${formatNumber(avgCurrentMa * 1000, 2)} µA</li>
+                        <li>${intervalLabel}</li>
+                    </ul>
+                </div>
+                <div class="result-item">
+                    <strong>Battery Life:</strong>
+                    <ul>
+                        <li class="${lifeClass}">${lifeLabel}</li>
+                        ${!isNaN(battMah) && battMah > 0
+                            ? `<li>Battery = ${formatNumber(battMah, 0)} mAh (85% usable)</li>
+                               <li>${formatNumber(lifetimeYears, 2)} years</li>`
+                            : '<li>Enter battery capacity above</li>'}
+                    </ul>
+                </div>
+            </div>
+            <div class="info-section">
+                <p><strong>PHY Comparison (${payloadBytes}B payload, ${formatNumber(txDbm, 0)} dBm TX):</strong></p>
+                <div class="iot-table-scroll">
+                    <table class="iot-comparison-table">
+                        <thead>
+                            <tr>
+                                <th>PHY</th>
+                                <th>BT Ver.</th>
+                                <th>Sensitivity</th>
+                                <th>Pkt ToA</th>
+                                <th>Adv Event</th>
+                                <th>Max Range (FSPL)</th>
+                                <th>Indoor Range</th>
+                                <th>Eff. Throughput</th>
+                            </tr>
+                        </thead>
+                        <tbody>${compRows}</tbody>
+                    </table>
+                </div>
+                <ul>
+                    <li><strong>1M PHY</strong>: universal support from BLE 4.0; best compatibility</li>
+                    <li><strong>2M PHY</strong>: 2× data rate, shorter ToA → lower average current for high-throughput use cases; slightly worse sensitivity than 1M</li>
+                    <li><strong>Coded S=2</strong>: 2× coding gain → ~4× range vs 1M; 7.5× longer ToA → higher average current for same interval</li>
+                    <li><strong>Coded S=8</strong>: 4× coding gain → ~16× range vs 1M; 30× longer ToA; ideal for long-range, low-duty-cycle sensors</li>
+                    <li>Indoor range uses 25 dB fade margin (walls, multipath); reduce to 10–15 dB for LOS environments</li>
+                    <li>Advertising on channels 37, 38, 39; BLE mesh may use all 40 channels</li>
+                </ul>
+            </div>`;
+
+        document.getElementById('ble-results').innerHTML = html;
+
+    } catch (error) {
+        document.getElementById('ble-results').innerHTML =
+            `<div class="error">Error: ${error.message}</div>`;
+    }
+}
+
 // Auto-render comparison on page load
 document.addEventListener('DOMContentLoaded', () => {
     renderIoTComparison();

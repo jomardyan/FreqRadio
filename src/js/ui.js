@@ -129,7 +129,11 @@ function getCalculatorForInput(inputId) {
         'iot-lb-freq':     calculateIoTLinkBudget,
         'iot-lb-tx-power': calculateIoTLinkBudget,
         'iot-batt-capacity': calculateIoTBatteryLife,
-        'iot-batt-interval': calculateIoTBatteryLife
+        'iot-batt-interval': calculateIoTBatteryLife,
+        // BLE
+        'ble-payload':     calculateBLE,
+        'ble-tx-power':    calculateBLE,
+        'ble-interval':    calculateBLE
     };
     
     return calculatorMap[inputId] || null;
@@ -337,7 +341,7 @@ function showHelp() {
                 <li><strong>Propagation:</strong> Path loss, link budgets, and Fresnel zones</li>
                 <li><strong>Conversions:</strong> Frequency/wavelength, power, and field strength conversions</li>
                 <li><strong>Radar &amp; Satellite:</strong> Radar range equation, pulse parameters, EW/jamming, orbital parameters, Starlink/LEO/GEO link budget, constellation coverage</li>
-                <li><strong>IoT Communications:</strong> LoRa/LoRaWAN time on air &amp; link budget, generic IoT link budget (LoRa, BLE, Zigbee, NB-IoT, LTE-M, Sigfox, Z-Wave, Wi-Fi HaLow), battery life estimator, technology comparison table</li>
+                <li><strong>IoT Communications:</strong> LoRa/LoRaWAN time on air &amp; link budget, generic IoT link budget (LoRa, BLE, Zigbee, NB-IoT, LTE-M, Sigfox, Z-Wave, Wi-Fi HaLow), battery life estimator, technology comparison table, <strong>BLE calculator</strong> (1M/2M/Coded S=2/S=8 — ToA, link budget, power, PHY comparison)</li>
             </ul>
         </div>
         
