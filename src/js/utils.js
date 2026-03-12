@@ -253,12 +253,15 @@ function fresnelZoneRadius(frequency, distance1, distance2, zone = 1) {
 /**
  * Validate input values
  * @param {number} value - Value to validate
- * @param {number} min - Minimum allowed value
+ * @param {number} min - Minimum allowed value (defaults to exclusive > 0 if not specified)
  * @param {number} max - Maximum allowed value
  * @returns {boolean} True if valid
  */
-function validateInput(value, min = -Infinity, max = Infinity) {
-    return !isNaN(value) && isFinite(value) && value >= min && value <= max && value > 0;
+function validateInput(value, min = null, max = Infinity) {
+    if (isNaN(value) || !isFinite(value)) return false;
+    if (max !== Infinity && value > max) return false;
+    if (min === null) return value > 0; // Default: require strictly positive
+    return value >= min;
 }
 
 /**

@@ -31,13 +31,13 @@
                 
                 <!-- Theme Toggle and Settings -->
                 <div class="header-controls">
-                    <button id="theme-toggle" class="btn btn-icon" title="Toggle theme">
+                    <button id="theme-toggle" class="btn btn-icon" title="Toggle theme" aria-label="Toggle theme">
                         <span class="theme-icon">🌙</span>
                     </button>
-                    <button id="settings-btn" class="btn btn-icon" title="Settings">
+                    <button id="settings-btn" class="btn btn-icon" title="Settings" aria-label="Settings">
                         ⚙️
                     </button>
-                    <button id="help-btn" class="btn btn-icon" title="Help">
+                    <button id="help-btn" class="btn btn-icon" title="Help" aria-label="Help">
                         ❓
                     </button>
                 </div>
@@ -63,6 +63,12 @@
                 </li>
                 <li class="nav-item">
                     <button class="nav-button" data-tab="conversions">🔄 Conversions</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-button" data-tab="radar-satellite">🎯 Radar &amp; Satellite</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-button" data-tab="iot">📡 IoT</button>
                 </li>
             </ul>
         </div>
@@ -890,6 +896,741 @@
                     </div>
                 </div>
             </section>
+
+            <!-- ═══════════════════════════════════════════════════════════
+                 RADAR & SATELLITE TAB
+                 ═══════════════════════════════════════════════════════════ -->
+            <section id="radar-satellite" class="tab-content">
+                <h2>Radar &amp; Satellite Communications</h2>
+
+                <!-- ── 1. Radar Range Equation ── -->
+                <div class="calculator-card">
+                    <h3>Radar Range Equation</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="radar-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-freq" step="0.001" placeholder="e.g. 9.4">
+                                <select id="radar-freq-unit">
+                                    <option value="GHz" selected>GHz</option>
+                                    <option value="MHz">MHz</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-tx-power">TX Peak Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-tx-power" step="0.001" placeholder="e.g. 100">
+                                <select id="radar-tx-power-unit">
+                                    <option value="kW" selected>kW</option>
+                                    <option value="W">W</option>
+                                    <option value="MW">MW</option>
+                                    <option value="dBW">dBW</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-ant-gain">Antenna Gain</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-ant-gain" step="0.1" placeholder="e.g. 35">
+                                <span class="unit">dBi</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-rcs">Target RCS (σ)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-rcs" step="0.001" placeholder="e.g. 1">
+                                <select id="radar-rcs-unit">
+                                    <option value="m2" selected>m²</option>
+                                    <option value="dBsm">dBsm</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-nf">Noise Figure</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-nf" step="0.1" value="5" placeholder="5">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-bw">Receiver Bandwidth</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-bw" step="0.001" value="1" placeholder="1">
+                                <span class="unit">MHz</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-snr">Min S/N Required</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-snr" step="0.1" value="13" placeholder="13">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-loss">System Losses</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-loss" step="0.1" value="3" placeholder="3">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateRadarRange()">Calculate</button>
+
+                    <div id="radar-range-results" class="results">
+                        <!-- Results populated by calculateRadarRange() -->
+                    </div>
+                </div>
+
+                <!-- ── 2. Radar Pulse Parameters ── -->
+                <div class="calculator-card">
+                    <h3>Radar Pulse Parameters</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="radar-prf">Pulse Repetition Frequency (PRF)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-prf" step="1" placeholder="e.g. 1000">
+                                <span class="unit">Hz</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-pw">Pulse Width (τ)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-pw" step="0.001" placeholder="e.g. 1">
+                                <select id="radar-pw-unit">
+                                    <option value="us" selected>µs</option>
+                                    <option value="ns">ns</option>
+                                    <option value="ms">ms</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-peak-power">Peak Power (optional)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-peak-power" step="0.001" placeholder="Optional">
+                                <span class="unit">W</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-pulse-freq">Carrier Frequency (optional)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-pulse-freq" step="0.001" placeholder="Optional">
+                                <select id="radar-pulse-freq-unit">
+                                    <option value="GHz" selected>GHz</option>
+                                    <option value="MHz">MHz</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="radar-cpi-pulses">CPI Pulses N (optional)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="radar-cpi-pulses" step="1" min="1" placeholder="e.g. 32">
+                                <span class="unit">pulses</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateRadarPulse()">Calculate</button>
+
+                    <div id="radar-pulse-results" class="results">
+                        <!-- Results populated by calculateRadarPulse() -->
+                    </div>
+                </div>
+
+                <!-- ── 3. Electronic Warfare ── -->
+                <div class="calculator-card">
+                    <h3>Electronic Warfare — Jamming &amp; Burn-Through</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="ew-radar-power">Radar TX Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ew-radar-power" step="0.001" placeholder="e.g. 100">
+                                <span class="unit">kW</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ew-radar-gain">Radar Antenna Gain</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ew-radar-gain" step="0.1" placeholder="e.g. 35">
+                                <span class="unit">dBi</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ew-rcs">Target RCS (σ)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ew-rcs" step="0.001" placeholder="e.g. 1">
+                                <select id="ew-rcs-unit">
+                                    <option value="m2" selected>m²</option>
+                                    <option value="dBsm">dBsm</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ew-jam-power">Jammer Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ew-jam-power" step="0.001" placeholder="e.g. 1">
+                                <span class="unit">kW</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ew-jam-gain">Jammer Antenna Gain</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ew-jam-gain" step="0.1" value="0" placeholder="0">
+                                <span class="unit">dBi</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ew-snr">Radar Min S/N</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ew-snr" step="0.1" value="13" placeholder="13">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateEW()">Calculate</button>
+
+                    <div id="ew-results" class="results">
+                        <!-- Results populated by calculateEW() -->
+                    </div>
+                </div>
+
+                <!-- ── 4. Orbital Parameters ── -->
+                <div class="calculator-card">
+                    <h3>Satellite Orbital Parameters</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="sat-preset">Quick Preset</label>
+                            <select id="sat-preset" onchange="loadSatellitePreset()">
+                                <option value="">— select preset —</option>
+                                <option value="iss">ISS (~408 km)</option>
+                                <option value="starlink">Starlink (~550 km)</option>
+                                <option value="iridium">Iridium (~780 km)</option>
+                                <option value="gps">GPS (~20,200 km)</option>
+                                <option value="geo">GEO (35,786 km)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="sat-altitude">Orbital Altitude</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="sat-altitude" step="1" placeholder="e.g. 550">
+                                <span class="unit">km</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateOrbitalParameters()">Calculate</button>
+
+                    <div id="orbital-results" class="results">
+                        <!-- Results populated by calculateOrbitalParameters() -->
+                    </div>
+                </div>
+
+                <!-- ── 5. Satellite Link Budget ── -->
+                <div class="calculator-card">
+                    <h3>Satellite Link Budget (Starlink / LEO / GEO)</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="slb-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="slb-freq" step="0.001" placeholder="e.g. 12">
+                                <select id="slb-freq-unit">
+                                    <option value="GHz" selected>GHz</option>
+                                    <option value="MHz">MHz</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="slb-altitude">Satellite Altitude</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="slb-altitude" step="1" placeholder="e.g. 550">
+                                <span class="unit">km</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="slb-tx-power">TX Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="slb-tx-power" step="0.1" placeholder="e.g. 16">
+                                <span class="unit">dBW</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="slb-tx-gain">TX Antenna Gain</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="slb-tx-gain" step="0.1" placeholder="e.g. 36">
+                                <span class="unit">dBi</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="slb-rx-gt">Rx G/T</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="slb-rx-gt" step="0.1" placeholder="e.g. 14">
+                                <span class="unit">dB/K</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="slb-elevation">Elevation Angle</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="slb-elevation" step="0.5" value="45" placeholder="45">
+                                <span class="unit">°</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="slb-atmos-loss">Atmospheric Loss</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="slb-atmos-loss" step="0.1" value="0.5" placeholder="0.5">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="slb-point-loss">Pointing Loss</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="slb-point-loss" step="0.1" value="0.5" placeholder="0.5">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateSatelliteLinkBudget()">Calculate</button>
+
+                    <div id="slb-results" class="results">
+                        <!-- Results populated by calculateSatelliteLinkBudget() -->
+                    </div>
+                </div>
+
+                <!-- ── 6. Satellite Constellation Coverage ── -->
+                <div class="calculator-card">
+                    <h3>Satellite Constellation Coverage</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="const-altitude">Orbital Altitude</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="const-altitude" step="1" placeholder="e.g. 550">
+                                <span class="unit">km</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="const-min-elev">Min Elevation Angle</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="const-min-elev" step="0.5" value="10" placeholder="10">
+                                <span class="unit">°</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="const-planes">Number of Orbital Planes</label>
+                            <input type="number" id="const-planes" step="1" min="1" placeholder="e.g. 72">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="const-sats-per-plane">Satellites per Plane</label>
+                            <input type="number" id="const-sats-per-plane" step="1" min="1" placeholder="e.g. 22">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateConstellationCoverage()">Calculate</button>
+
+                    <div id="constellation-results" class="results">
+                        <!-- Results populated by calculateConstellationCoverage() -->
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════
+                 IoT COMMUNICATIONS TAB
+                 ═══════════════════════════════════════════════════════════ -->
+            <section id="iot" class="tab-content">
+                <h2>IoT Communications Calculators</h2>
+
+                <!-- ── 1. LoRa / LoRaWAN ── -->
+                <div class="calculator-card">
+                    <h3>LoRa / LoRaWAN — Time on Air &amp; Link Budget</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="lora-sf">Spreading Factor (SF)</label>
+                            <select id="lora-sf">
+                                <option value="7">SF7 (fastest)</option>
+                                <option value="8">SF8</option>
+                                <option value="9">SF9</option>
+                                <option value="10">SF10</option>
+                                <option value="11">SF11</option>
+                                <option value="12" selected>SF12 (longest range)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="lora-bw">Bandwidth</label>
+                            <select id="lora-bw">
+                                <option value="125" selected>125 kHz</option>
+                                <option value="250">250 kHz</option>
+                                <option value="500">500 kHz</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="lora-cr">Coding Rate</label>
+                            <select id="lora-cr">
+                                <option value="1" selected>4/5 (CR=1, lowest overhead)</option>
+                                <option value="2">4/6 (CR=2)</option>
+                                <option value="3">4/7 (CR=3)</option>
+                                <option value="4">4/8 (CR=4, highest FEC)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="lora-payload">Payload Length</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lora-payload" step="1" min="1" max="255" value="20" placeholder="20">
+                                <span class="unit">bytes</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="lora-preamble">Preamble Symbols</label>
+                            <input type="number" id="lora-preamble" step="1" min="6" max="65535" value="8" placeholder="8">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="lora-tx-power">TX Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lora-tx-power" step="0.5" value="14" placeholder="14">
+                                <span class="unit">dBm</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="lora-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lora-freq" step="0.1" value="868" placeholder="868">
+                                <span class="unit">MHz</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="lora-nf">Receiver Noise Figure</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="lora-nf" step="0.5" value="6" placeholder="6">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group" style="align-self:end;">
+                            <label>Options</label>
+                            <div style="display:flex;gap:1rem;flex-wrap:wrap">
+                                <label style="font-weight:normal">
+                                    <input type="checkbox" id="lora-crc" checked> CRC enabled
+                                </label>
+                                <label style="font-weight:normal">
+                                    <input type="checkbox" id="lora-ih"> Implicit header
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateLoRa()">Calculate</button>
+
+                    <div id="lora-results" class="results">
+                        <!-- Results populated by calculateLoRa() -->
+                    </div>
+                </div>
+
+                <!-- ── 2. IoT Link Budget ── -->
+                <div class="calculator-card">
+                    <h3>IoT Link Budget</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="iot-lb-preset">Technology Preset</label>
+                            <select id="iot-lb-preset" onchange="loadIoTPreset()">
+                                <option value="">— select preset —</option>
+                                <option value="lora_sf12">LoRa SF12 / EU868</option>
+                                <option value="lora_sf7">LoRa SF7 / EU868</option>
+                                <option value="nbiot">NB-IoT</option>
+                                <option value="ltem">LTE-M (Cat-M1)</option>
+                                <option value="sigfox">Sigfox</option>
+                                <option value="ble5">BLE 5.0 (1M PHY)</option>
+                                <option value="ble5_lr">BLE 5.0 Long Range</option>
+                                <option value="zigbee">Zigbee / 802.15.4</option>
+                                <option value="thread">Thread / Matter</option>
+                                <option value="zwave">Z-Wave</option>
+                                <option value="wifi_halow">Wi-Fi HaLow (802.11ah)</option>
+                                <option value="wifi_24">Wi-Fi 2.4 GHz</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-lb-freq">Frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-lb-freq" step="0.1" placeholder="e.g. 868">
+                                <span class="unit">MHz</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-lb-tx-power">TX Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-lb-tx-power" step="0.5" placeholder="e.g. 14">
+                                <span class="unit">dBm</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-lb-sensitivity">Rx Sensitivity</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-lb-sensitivity" step="0.5" placeholder="e.g. -137">
+                                <span class="unit">dBm</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-lb-tx-gain">TX Antenna Gain</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-lb-tx-gain" step="0.1" value="2.1" placeholder="2.1">
+                                <span class="unit">dBi</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-lb-rx-gain">RX Antenna Gain</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-lb-rx-gain" step="0.1" value="2.1" placeholder="2.1">
+                                <span class="unit">dBi</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-lb-feeder">Feeder / Cable Loss</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-lb-feeder" step="0.1" value="0" placeholder="0">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-lb-margin">Fade Margin</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-lb-margin" step="0.5" value="10" placeholder="10">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateIoTLinkBudget()">Calculate</button>
+
+                    <div id="iot-lb-results" class="results">
+                        <!-- Results populated by calculateIoTLinkBudget() -->
+                    </div>
+                </div>
+
+                <!-- ── 3. Battery Life Estimator ── -->
+                <div class="calculator-card">
+                    <h3>IoT Battery Life Estimator</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="iot-batt-capacity">Battery Capacity</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-batt-capacity" step="1" placeholder="e.g. 2000">
+                                <span class="unit">mAh</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-batt-tx-current">TX Current</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-batt-tx-current" step="0.1" placeholder="e.g. 40">
+                                <span class="unit">mA</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-batt-tx-duration">TX Duration per Message</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-batt-tx-duration" step="0.1" placeholder="e.g. 2500">
+                                <span class="unit">ms</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-batt-rx-current">RX / Active Current</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-batt-rx-current" step="0.1" placeholder="e.g. 12">
+                                <span class="unit">mA</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-batt-rx-duration">RX Window Duration</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-batt-rx-duration" step="0.1" placeholder="e.g. 100" value="0">
+                                <span class="unit">ms</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-batt-sleep-current">Sleep Current</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-batt-sleep-current" step="0.1" placeholder="e.g. 2" value="2">
+                                <span class="unit">µA</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-batt-interval">Message Interval</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-batt-interval" step="1" placeholder="e.g. 900">
+                                <span class="unit">s</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="iot-batt-self-discharge">Battery Self-Discharge</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-batt-self-discharge" step="0.1" value="2" placeholder="2">
+                                <span class="unit">%/year</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateIoTBatteryLife()">Calculate</button>
+
+                    <div id="iot-battery-results" class="results">
+                        <!-- Results populated by calculateIoTBatteryLife() -->
+                    </div>
+                </div>
+
+                <!-- ── 4. Technology Comparison ── -->
+                <div class="calculator-card">
+                    <h3>IoT Technology Comparison</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="iot-cmp-margin">Fade Margin for Range Calculation</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="iot-cmp-margin" step="1" value="10" placeholder="10">
+                                <span class="unit">dB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="renderIoTComparison()">Compare</button>
+
+                    <div id="iot-comparison-results" class="results">
+                        <!-- Results populated by renderIoTComparison() -->
+                    </div>
+                </div>
+
+                <!-- ── 5. BLE Calculator ── -->
+                <div class="calculator-card">
+                    <h3>BLE (Bluetooth Low Energy) Calculator</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="ble-phy">PHY Mode</label>
+                            <select id="ble-phy">
+                                <option value="1M" selected>1M PHY — 1 Mbps (BLE 4.0+)</option>
+                                <option value="2M">2M PHY — 2 Mbps (BLE 5.0+)</option>
+                                <option value="coded_s2">Coded S=2 — 500 kbps (BLE 5.0+)</option>
+                                <option value="coded_s8">Coded S=8 — 125 kbps (BLE 5.0+, long range)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-mode">Operating Mode</label>
+                            <select id="ble-mode">
+                                <option value="advertising" selected>Advertising (3 channels)</option>
+                                <option value="connection">Connection (1 TX + 1 RX)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-payload">Payload Length</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-payload" step="1" min="0" max="255" value="27" placeholder="27">
+                                <span class="unit">bytes</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-tx-power">TX Power</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-tx-power" step="1" min="-20" max="20" value="0" placeholder="0">
+                                <span class="unit">dBm</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-interval">Adv / Connection Interval</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-interval" step="0.625" min="7.5" value="1000" placeholder="1000">
+                                <span class="unit">ms</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-tx-current">TX Current</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-tx-current" step="0.1" value="9" placeholder="9">
+                                <span class="unit">mA</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-rx-current">RX Current</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-rx-current" step="0.1" value="7" placeholder="7">
+                                <span class="unit">mA</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-sleep-current">Sleep Current</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-sleep-current" step="0.1" value="2" placeholder="2">
+                                <span class="unit">µA</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ble-battery">Battery Capacity (optional)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="ble-battery" step="1" placeholder="e.g. 1000">
+                                <span class="unit">mAh</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-calculate" onclick="calculateBLE()">Calculate</button>
+
+                    <div id="ble-results" class="results">
+                        <!-- Results populated by calculateBLE() -->
+                    </div>
+                </div>
+
+            </section>
         </div>
     </main>
 
@@ -942,6 +1683,8 @@
     <script src="src/js/rf-calculators.js"></script>
     <script src="src/js/transmission-calculators.js"></script>
     <script src="src/js/propagation-calculators.js"></script>
+    <script src="src/js/radar-satellite-calculators.js"></script>
+    <script src="src/js/iot-calculators.js"></script>
     <script src="src/js/plotting.js"></script>
     <script src="src/js/ui.js"></script>
     <script src="src/js/main.js"></script>

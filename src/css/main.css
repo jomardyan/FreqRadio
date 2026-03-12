@@ -1,0 +1,559 @@
+/* FreqRadio - Main Stylesheet */
+
+/* ============================================================
+   CSS Custom Properties (Design Tokens)
+   ============================================================ */
+:root {
+    --color-primary: #2196F3;
+    --color-primary-dark: #1565C0;
+    --color-primary-light: #64B5F6;
+
+    --color-bg: #f5f7fa;
+    --color-bg-card: #ffffff;
+    --color-bg-header: #1e3a5f;
+    --color-bg-nav: #ffffff;
+    --color-bg-footer: #1e3a5f;
+    --color-bg-input: #ffffff;
+    --color-bg-result: #f0f4f8;
+    --color-bg-modal: rgba(0, 0, 0, 0.6);
+    --color-bg-modal-content: #ffffff;
+
+    --color-text: #212529;
+    --color-text-muted: #6c757d;
+    --color-text-header: #ffffff;
+    --color-text-link: #2196F3;
+
+    --color-border: #dee2e6;
+    --color-border-input: #ced4da;
+    --color-border-focus: #2196F3;
+
+    --color-error: #dc3545;
+    --color-error-bg: #f8d7da;
+    --color-success: #28a745;
+    --color-warning: #ffc107;
+    --color-bg-hover: #e8f0fe;
+
+    --quality-excellent: #28a745;
+    --quality-good: #17a2b8;
+    --quality-fair: #ffc107;
+    --quality-poor: #dc3545;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'Courier New', Courier, monospace;
+
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    --transition: 0.2s ease;
+
+    --nav-height: 56px;
+    --header-height: 72px;
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color var(--transition), color var(--transition);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+a {
+    color: var(--color-text-link);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    padding-left: 1.25rem;
+}
+
+code {
+    font-family: var(--font-mono);
+    background-color: var(--color-bg-result);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 0.875em;
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+/* ============================================================
+   Header
+   ============================================================ */
+.header {
+    background-color: var(--color-bg-header);
+    color: var(--color-text-header);
+    padding: var(--spacing-md) 0;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.app-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-text-header);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.radio-icon {
+    font-size: 1.6rem;
+}
+
+.app-subtitle {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+    margin-left: var(--spacing-sm);
+}
+
+.header-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* ============================================================
+   Navigation
+   ============================================================ */
+.nav {
+    background-color: var(--color-bg-nav);
+    border-bottom: 2px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: var(--header-height);
+    z-index: 99;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    overflow-x: auto;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) 0;
+}
+
+.nav-item {
+    flex-shrink: 0;
+}
+
+.nav-button {
+    background: none;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-family: var(--font-family);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition), color var(--transition);
+    white-space: nowrap;
+}
+
+.nav-button:hover {
+    background-color: var(--color-bg-result);
+    color: var(--color-primary);
+}
+
+.nav-button.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* ============================================================
+   Main Content
+   ============================================================ */
+.main {
+    flex: 1;
+    padding: var(--spacing-lg) 0;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: var(--font-family);
+    font-weight: 500;
+    transition: background-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    text-decoration: none;
+    line-height: 1.4;
+}
+
+.btn:hover {
+    background-color: var(--color-primary-dark);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 2px;
+}
+
+.btn-icon {
+    background: rgba(255, 255, 255, 0.15);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-calculate {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-xl);
+    font-size: 1rem;
+}
+
+.btn-warning {
+    background-color: #dc3545;
+}
+
+.btn-warning:hover {
+    background-color: #b02a37;
+}
+
+.btn-install {
+    background-color: var(--color-primary);
+    font-size: 0.9rem;
+}
+
+/* Conversion buttons group */
+.conversion-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    margin-top: var(--spacing-md);
+}
+
+/* ============================================================
+   Modals
+   ============================================================ */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: var(--color-bg-modal);
+    z-index: 1000;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+}
+
+.modal-content {
+    background-color: var(--color-bg-modal-content);
+    color: var(--color-text);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    max-width: 700px;
+    margin: auto;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-content h2 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-primary);
+    font-size: 1.4rem;
+}
+
+.close {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-lg);
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition);
+}
+
+.close:hover {
+    color: var(--color-text);
+}
+
+/* Settings sections */
+.settings-section {
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.settings-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.settings-section h3 {
+    margin-bottom: var(--spacing-md);
+    font-size: 1.05rem;
+    color: var(--color-text);
+}
+
+.settings-section label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.settings-section select {
+    margin-left: var(--spacing-sm);
+}
+
+/* Help sections */
+.help-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.help-section h3 {
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.05rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--spacing-xs);
+}
+
+.help-section h4 {
+    margin-top: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    font-size: 0.95rem;
+}
+
+.help-section p,
+.help-section li {
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-text);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.footer {
+    background-color: var(--color-bg-footer);
+    color: rgba(255, 255, 255, 0.8);
+    padding: var(--spacing-lg) 0;
+    margin-top: auto;
+}
+
+.footer .disclaimer {
+    font-size: 0.82rem;
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.5;
+}
+
+.footer-info {
+    font-size: 0.82rem;
+    opacity: 0.75;
+}
+
+.footer a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* ============================================================
+   Notifications
+   ============================================================ */
+.notification {
+    position: fixed;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    z-index: 1500;
+    max-width: 320px;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow-md);
+    color: #ffffff;
+    cursor: pointer;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-info    { background-color: #2196F3; }
+.notification-success { background-color: #28a745; }
+.notification-warning { background-color: #FF9800; }
+.notification-error   { background-color: #F44336; }
+
+/* ============================================================
+   Welcome Message
+   ============================================================ */
+.welcome-message {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: var(--spacing-lg);
+}
+
+.welcome-content {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    max-width: 520px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+}
+
+.welcome-content h2 {
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.welcome-content p {
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.95rem;
+}
+
+.welcome-content ul {
+    margin: var(--spacing-sm) 0 var(--spacing-md);
+}
+
+.welcome-content li {
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+/* ============================================================
+   Offline indicator
+   ============================================================ */
+body.offline::before {
+    content: '⚠️ You are offline';
+    display: block;
+    background-color: #FF9800;
+    color: #ffffff;
+    text-align: center;
+    padding: var(--spacing-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 600px) {
+    .app-subtitle {
+        display: none;
+    }
+
+    .app-title {
+        font-size: 1.3rem;
+    }
+
+    .modal {
+        padding: var(--spacing-sm);
+    }
+
+    .modal-content {
+        padding: var(--spacing-lg);
+    }
+
+    .notification {
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        max-width: none;
+    }
+}
