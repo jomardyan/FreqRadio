@@ -5,7 +5,7 @@
  */
 function calculateVSWR() {
     const inputType = document.getElementById('vswr-input-type').value;
-    let vswr, gamma, returnLoss, mismatchLoss;
+    let vswr, gamma, returnLoss;
     
     try {
         switch (inputType) {
@@ -67,7 +67,7 @@ function calculateVSWR() {
         // Calculate all related parameters
         vswr = gammaToVSWR(gamma);
         returnLoss = gammaToReturnLoss(gamma);
-        mismatchLoss = mismatchLoss(gamma);
+        const mismatchLossDb = mismatchLoss(gamma);
         
         // Calculate percentage of power reflected and transmitted
         const powerReflected = gamma * gamma * 100;
@@ -90,7 +90,7 @@ function calculateVSWR() {
                         <li>VSWR = ${formatNumber(vswr, 3)}:1</li>
                         <li>Reflection coefficient = ${formatNumber(gamma, 4)}</li>
                         <li>Return loss = ${formatNumber(returnLoss, 2)} dB</li>
-                        <li>Mismatch loss = ${formatNumber(mismatchLoss, 3)} dB</li>
+                        <li>Mismatch loss = ${formatNumber(mismatchLossDb, 3)} dB</li>
                     </ul>
                 </div>
                 
@@ -99,7 +99,7 @@ function calculateVSWR() {
                     <ul>
                         <li>Power reflected = ${formatNumber(powerReflected, 2)}%</li>
                         <li>Power transmitted = ${formatNumber(powerTransmitted, 2)}%</li>
-                        <li>Power loss = ${formatNumber(mismatchLoss, 3)} dB</li>
+                        <li>Power loss = ${formatNumber(mismatchLossDb, 3)} dB</li>
                     </ul>
                 </div>
                 
@@ -127,13 +127,13 @@ function calculateVSWR() {
                 <ul>`;
         
         if (vswr <= 1.2) {
-            html += '<li style="color: green;">Excellent match (VSWR ≤ 1.2)</li>';
+            html += '<li class="quality-excellent">Excellent match (VSWR ≤ 1.2)</li>';
         } else if (vswr <= 1.5) {
-            html += '<li style="color: orange;">Good match (VSWR ≤ 1.5)</li>';
+            html += '<li class="quality-good">Good match (VSWR ≤ 1.5)</li>';
         } else if (vswr <= 2.0) {
-            html += '<li style="color: orange;">Acceptable match (VSWR ≤ 2.0)</li>';
+            html += '<li class="quality-fair">Acceptable match (VSWR ≤ 2.0)</li>';
         } else {
-            html += '<li style="color: red;">Poor match (VSWR > 2.0)</li>';
+            html += '<li class="quality-poor">Poor match (VSWR > 2.0)</li>';
         }
         
         html += `
@@ -267,7 +267,7 @@ function calculateTransmissionLine() {
                         <li>Loss spec: ${loss} dB/100m @ 1GHz</li>
                         <li>Loss @ freq: ${formatNumber(lossPerMeter * 100, 2)} dB/100m</li>
                         <li>Total loss: ${formatNumber(totalLoss, 2)} dB</li>
-                        <li>Power efficiency: ${formatNumber((1 - Math.pow(10, -totalLoss/10)) * 100, 1)}%</li>
+                        <li>Power efficiency: ${formatNumber(Math.pow(10, -totalLoss / 10) * 100, 1)}%</li>
                     </ul>
                 </div>`;
         }

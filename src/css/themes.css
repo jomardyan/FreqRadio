@@ -1,0 +1,70 @@
+/* FreqRadio - Theme Styles (Light & Dark) */
+
+/* ============================================================
+   Light Theme (default — values already in :root in main.css)
+   ============================================================ */
+
+/* ============================================================
+   Dark Theme
+   ============================================================ */
+body.dark-theme {
+    --color-bg: #121212;
+    --color-bg-card: #1e1e1e;
+    --color-bg-header: #0d1f33;
+    --color-bg-nav: #1e1e1e;
+    --color-bg-footer: #0d1f33;
+    --color-bg-input: #2a2a2a;
+    --color-bg-result: #252525;
+    --color-bg-modal-content: #1e1e1e;
+
+    --color-text: #e4e6eb;
+    --color-text-muted: #9ba3af;
+    --color-text-header: #e4e6eb;
+    --color-text-link: #64B5F6;
+
+    --color-border: #3a3a3a;
+    --color-border-input: #4a4a4a;
+    --color-border-focus: #64B5F6;
+
+    --color-error: #ef5350;
+    --color-error-bg: #2d1215;
+
+    --quality-excellent: #66bb6a;
+    --quality-good:      #26c6da;
+    --quality-fair:      #ffca28;
+    --quality-poor:      #ef5350;
+}
+
+/* Select arrow icon color for dark theme */
+body.dark-theme .input-group select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239ba3af' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* Dark info section */
+body.dark-theme .info-section {
+    background-color: rgba(100, 181, 246, 0.06);
+    border-color: rgba(100, 181, 246, 0.25);
+    border-left-color: var(--color-primary-light);
+}
+
+/* Dark code blocks */
+body.dark-theme code {
+    background-color: #2a2a2a;
+    color: #e4e6eb;
+}
+
+/* ============================================================
+   Theme Toggle Transition
+   ============================================================ */
+body,
+.calculator-card,
+.modal-content,
+.result-item,
+.info-section,
+.input-group input,
+.input-group select,
+.nav,
+.header,
+.footer {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
