@@ -134,11 +134,11 @@ const MATH = {
     
     // dB conversion helpers
     DB_TO_RATIO: (db) => Math.pow(10, db / 10),
-    RATIO_TO_DB: (ratio) => 10 * Math.log10(ratio),
+    RATIO_TO_DB: (ratio) => (ratio > 0 ? 10 * Math.log10(ratio) : -Infinity),
     DBM_TO_WATTS: (dbm) => Math.pow(10, (dbm - 30) / 10),
-    WATTS_TO_DBM: (watts) => 10 * Math.log10(watts * 1000),
+    WATTS_TO_DBM: (watts) => (watts > 0 ? 10 * Math.log10(watts * 1000) : -Infinity),
     DBW_TO_WATTS: (dbw) => Math.pow(10, dbw / 10),
-    WATTS_TO_DBW: (watts) => 10 * Math.log10(watts)
+    WATTS_TO_DBW: (watts) => (watts > 0 ? 10 * Math.log10(watts) : -Infinity)
 };
 
 // Export constants for use in other modules

@@ -5,6 +5,7 @@ const app = {
     version: '0.1',
     initialized: false,
     currentTab: 'antenna',
+    debug: false, // Set to true during development to enable verbose logging
     settings: {
         theme: 'light',
         autoCalculate: true,
@@ -23,7 +24,7 @@ const app = {
 function initializeApp() {
     if (app.initialized) return;
     
-    console.log(`FreqRadio v${app.version} initializing...`);
+    if (app.debug) console.log(`FreqRadio v${app.version} initializing...`);
     
     try {
         // Load settings from localStorage
@@ -39,18 +40,21 @@ function initializeApp() {
         setupPWA();
         
         // Load saved tab
-        const savedTab = localStorage.getItem('freqradio-current-tab');
+        let savedTab;
+        try { savedTab = localStorage.getItem('freqradio-current-tab'); } catch (_) {}
         if (savedTab) {
             showTab(savedTab);
         }
         
         app.initialized = true;
-        console.log('FreqRadio initialized successfully');
+        if (app.debug) console.log('FreqRadio initialized successfully');
         
         // Show welcome message for first-time users
-        if (!localStorage.getItem('freqradio-welcomed')) {
+        let welcomed;
+        try { welcomed = localStorage.getItem('freqradio-welcomed'); } catch (_) {}
+        if (!welcomed) {
             showWelcomeMessage();
-            localStorage.setItem('freqradio-welcomed', 'true');
+            try { localStorage.setItem('freqradio-welcomed', 'true'); } catch (_) {}
         }
         
     } catch (error) {
@@ -63,13 +67,18 @@ function initializeApp() {
  * Load application settings
  */
 function loadAppSettings() {
-    const saved = localStorage.getItem('freqradio-settings');
+    let saved;
+    try {
+        saved = localStorage.getItem('freqradio-settings');
+    } catch (_) {
+        return;
+    }
     if (saved) {
         try {
             const settings = JSON.parse(saved);
             app.settings = { ...app.settings, ...settings };
         } catch (e) {
-            console.warn('Could not load app settings:', e);
+            if (app.debug) console.warn('Could not load app settings:', e);
         }
     }
 }
@@ -78,7 +87,9 @@ function loadAppSettings() {
  * Save application settings
  */
 function saveAppSettings() {
-    localStorage.setItem('freqradio-settings', JSON.stringify(app.settings));
+    try {
+        localStorage.setItem('freqradio-settings', JSON.stringify(app.settings));
+    } catch (_) {}
 }
 
 /**
@@ -98,6 +109,9 @@ function setupErrorHandling() {
     });
 }
 
+// PWA install prompt - module-level scope so showInstallPrompt can access it
+let deferredPrompt = null;
+
 /**
  * Set up Progressive Web App features
  */
@@ -106,15 +120,14 @@ function setupPWA() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
             .then(registration => {
-                console.log('Service Worker registered:', registration);
+                if (app.debug) console.log('Service Worker registered:', registration);
             })
             .catch(error => {
-                console.log('Service Worker registration failed:', error);
+                if (app.debug) console.log('Service Worker registration failed:', error);
             });
     }
     
     // Install prompt handling
-    let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -123,7 +136,7 @@ function setupPWA() {
     
     // Handle app install
     window.addEventListener('appinstalled', () => {
-        console.log('FreqRadio was installed');
+        if (app.debug) console.log('FreqRadio was installed');
         deferredPrompt = null;
     });
 }
@@ -144,8 +157,10 @@ function showInstallPrompt() {
     installBtn.onclick = async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log('Install prompt outcome:', outcome);
+            try {
+                const { outcome } = await deferredPrompt.userChoice;
+                if (app.debug) console.log('Install prompt outcome:', outcome);
+            } catch (_) {}
             deferredPrompt = null;
             installBtn.remove();
         }
@@ -208,17 +223,37 @@ function showWelcomeMessage() {
  * @param {Error} error - Error object
  */
 function showFatalError(error) {
-    document.body.innerHTML = `
-        <div style="padding: 20px; text-align: center; color: red;">
-            <h1>FreqRadio - Fatal Error</h1>
-            <p>The application failed to initialize properly.</p>
-            <p><strong>Error:</strong> ${error.message}</p>
-            <p>Please refresh the page or contact support if the problem persists.</p>
-            <button onclick="location.reload()" style="padding: 10px 20px; margin-top: 20px;">
-                Refresh Page
-            </button>
-        </div>
-    `;
+    const container = document.createElement('div');
+    container.style.cssText = 'padding:20px;text-align:center;color:red;';
+    
+    const h1 = document.createElement('h1');
+    h1.textContent = 'FreqRadio - Fatal Error';
+    
+    const p1 = document.createElement('p');
+    p1.textContent = 'The application failed to initialize properly.';
+    
+    const p2 = document.createElement('p');
+    const strong = document.createElement('strong');
+    strong.textContent = 'Error: ';
+    p2.appendChild(strong);
+    p2.appendChild(document.createTextNode(error && error.message ? error.message : String(error)));
+    
+    const p3 = document.createElement('p');
+    p3.textContent = 'Please refresh the page or contact support if the problem persists.';
+    
+    const btn = document.createElement('button');
+    btn.textContent = 'Refresh Page';
+    btn.style.cssText = 'padding:10px 20px;margin-top:20px;';
+    btn.onclick = () => location.reload();
+    
+    container.appendChild(h1);
+    container.appendChild(p1);
+    container.appendChild(p2);
+    container.appendChild(p3);
+    container.appendChild(btn);
+    
+    document.body.innerHTML = '';
+    document.body.appendChild(container);
 }
 
 /**
@@ -353,9 +388,9 @@ function loadSharedConfiguration() {
                 }, 100);
             }
             
-            console.log('Loaded shared configuration');
+            if (app.debug) console.log('Loaded shared configuration');
         } catch (error) {
-            console.error('Failed to load shared configuration:', error);
+            if (app.debug) console.error('Failed to load shared configuration:', error);
         }
     }
 }
@@ -440,7 +475,7 @@ function setupPerformanceMonitoring() {
                 const end = performance.now();
                 
                 if (end - start > 100) { // Log slow calculations
-                    console.warn(`${func.name} took ${(end - start).toFixed(2)}ms`);
+                    if (app.debug) console.warn(`${func.name} took ${(end - start).toFixed(2)}ms`);
                 }
                 
                 return result;

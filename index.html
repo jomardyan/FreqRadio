@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Educational RF and antenna calculator for quick estimation of antenna sizes, transmission line parameters, and link budgets">
-    <title>FreqRadio - RF & Antenna Calculator</title>
+    <title>FreqRadio - RF &amp; Antenna Calculator</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="src/css/main.css">
@@ -12,7 +15,8 @@
     <link rel="stylesheet" href="src/css/themes.css">
     
     <!-- Chart.js for plotting -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+            crossorigin="anonymous"></script>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -1654,8 +1658,8 @@
     <!-- Modals -->
     <div id="help-modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('help-modal')">&times;</span>
-            <h2>Help & Usage</h2>
+            <button class="close" onclick="closeModal('help-modal')" aria-label="Close">&times;</button>
+            <h2>Help &amp; Usage</h2>
             <div id="help-content">
                 <!-- Help content will be loaded here -->
             </div>
@@ -1664,7 +1668,7 @@
 
     <div id="settings-modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('settings-modal')">&times;</span>
+            <button class="close" onclick="closeModal('settings-modal')" aria-label="Close">&times;</button>
             <h2>Settings</h2>
             <div id="settings-content">
                 <!-- Settings content will be loaded here -->

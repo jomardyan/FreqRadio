@@ -62,11 +62,11 @@ function iotMaxRange(txDbm, antGainTxDbi, sensitivityDbm, antGainRxDbi, freqHz, 
  * Returns complete packet timing and link budget.
  */
 function calculateLoRa() {
-    const sf        = parseInt(document.getElementById('lora-sf').value);
+    const sf        = parseInt(document.getElementById('lora-sf').value, 10);
     const bwKHz     = parseFloat(document.getElementById('lora-bw').value);
-    const cr        = parseInt(document.getElementById('lora-cr').value);   // 1=4/5 … 4=4/8
-    const pl        = parseInt(document.getElementById('lora-payload').value);
-    const nPreamble = parseInt(document.getElementById('lora-preamble').value) || 8;
+    const cr        = parseInt(document.getElementById('lora-cr').value, 10);   // 1=4/5 … 4=4/8
+    const pl        = parseInt(document.getElementById('lora-payload').value, 10);
+    const nPreamble = parseInt(document.getElementById('lora-preamble').value, 10) || 8;
     const crc       = document.getElementById('lora-crc').checked ? 1 : 0;
     const ih        = document.getElementById('lora-ih').checked  ? 1 : 0;  // implicit header
     const txDbm     = parseFloat(document.getElementById('lora-tx-power').value);
@@ -663,7 +663,7 @@ const BLE_ADV_CHANNELS = 3;
 function calculateBLE() {
     const phyKey       = document.getElementById('ble-phy').value;
     const txDbm        = parseFloat(document.getElementById('ble-tx-power').value);
-    const payloadBytes = parseInt(document.getElementById('ble-payload').value);
+    const payloadBytes = parseInt(document.getElementById('ble-payload').value, 10);
     const mode         = document.getElementById('ble-mode').value;      // 'advertising' | 'connection'
     const intervalMs   = parseFloat(document.getElementById('ble-interval').value);
     const txCurrentMa  = parseFloat(document.getElementById('ble-tx-current').value);
