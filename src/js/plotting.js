@@ -12,7 +12,6 @@ let currentChart = null;
 function createFrequencyPlot(canvasId, frequencies, responses, options = {}) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) {
-        console.error(`Canvas element ${canvasId} not found`);
         return null;
     }
     
@@ -266,7 +265,6 @@ function plotSmithChart(impedances) {
 function showChart(plotType, data) {
     const canvas = document.getElementById('chart-canvas');
     if (!canvas) {
-        console.error('Chart canvas not found');
         return;
     }
     
@@ -288,7 +286,8 @@ function showChart(plotType, data) {
     if (!document.getElementById('chart-close-btn')) {
         const closeBtn = document.createElement('button');
         closeBtn.id = 'chart-close-btn';
-        closeBtn.innerHTML = '×';
+        closeBtn.setAttribute('aria-label', 'Close chart');
+        closeBtn.textContent = '×';
         closeBtn.style.position = 'absolute';
         closeBtn.style.top = '10px';
         closeBtn.style.right = '10px';
@@ -337,7 +336,7 @@ function showChart(plotType, data) {
             plotPathLoss(data.frequency, data.distances);
             break;
         default:
-            console.warn('Unknown plot type:', plotType);
+            break;
     }
 }
 

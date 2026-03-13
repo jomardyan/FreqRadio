@@ -8,7 +8,10 @@
  * @returns {number} Wavelength in meters
  */
 function frequencyToWavelength(frequency, freqUnit, velocityFactor = 1.0) {
-    const freqHz = frequency * CONSTANTS.FREQ_UNITS[freqUnit];
+    const unitFactor = CONSTANTS.FREQ_UNITS[freqUnit];
+    if (unitFactor === undefined) throw new Error(`Unknown frequency unit: ${freqUnit}`);
+    const freqHz = frequency * unitFactor;
+    if (freqHz <= 0) return Infinity;
     return (CONSTANTS.SPEED_OF_LIGHT * velocityFactor) / freqHz;
 }
 
@@ -20,7 +23,10 @@ function frequencyToWavelength(frequency, freqUnit, velocityFactor = 1.0) {
  * @returns {number} Frequency in Hz
  */
 function wavelengthToFrequency(wavelength, lengthUnit, velocityFactor = 1.0) {
-    const wavelengthM = wavelength * CONSTANTS.LENGTH_UNITS[lengthUnit];
+    const unitFactor = CONSTANTS.LENGTH_UNITS[lengthUnit];
+    if (unitFactor === undefined) throw new Error(`Unknown length unit: ${lengthUnit}`);
+    const wavelengthM = wavelength * unitFactor;
+    if (wavelengthM <= 0) return Infinity;
     return (CONSTANTS.SPEED_OF_LIGHT * velocityFactor) / wavelengthM;
 }
 
@@ -135,7 +141,9 @@ function inductiveReactance(frequency, inductance) {
  * @returns {number} Capacitive reactance in ohms (positive value)
  */
 function capacitiveReactance(frequency, capacitance) {
-    return 1 / (CONSTANTS.TWO_PI * frequency * capacitance);
+    const denom = CONSTANTS.TWO_PI * frequency * capacitance;
+    if (denom === 0) return Infinity;
+    return 1 / denom;
 }
 
 /**
@@ -145,7 +153,9 @@ function capacitiveReactance(frequency, capacitance) {
  * @returns {number} Resonant frequency in Hz
  */
 function lcResonantFrequency(inductance, capacitance) {
-    return 1 / (CONSTANTS.TWO_PI * Math.sqrt(inductance * capacitance));
+    const product = inductance * capacitance;
+    if (product <= 0) return Infinity;
+    return 1 / (CONSTANTS.TWO_PI * Math.sqrt(product));
 }
 
 /**
@@ -156,6 +166,7 @@ function lcResonantFrequency(inductance, capacitance) {
  * @returns {number} Q factor
  */
 function seriesQFactor(resistance, inductance, capacitance) {
+    if (resistance === 0) return Infinity;
     const resonantFreq = lcResonantFrequency(inductance, capacitance);
     const xl = inductiveReactance(resonantFreq, inductance);
     return xl / resistance;
@@ -209,6 +220,7 @@ function returnLossToGamma(returnLoss) {
  */
 function mismatchLoss(gamma) {
     const gammaSquared = gamma * gamma;
+    if (gammaSquared >= 1) return Infinity;
     return -10 * Math.log10(1 - gammaSquared);
 }
 
@@ -231,6 +243,7 @@ function electricalLength(frequency, physicalLength, velocityFactor = 1.0) {
  * @returns {number} Path loss in dB
  */
 function freeSpacePathLoss(frequency, distance) {
+    if (frequency <= 0 || distance <= 0) return Infinity;
     const freqMHz = frequency / 1e6;
     const distanceKm = distance / 1000;
     return 32.44 + 20 * Math.log10(freqMHz) + 20 * Math.log10(distanceKm);
@@ -245,8 +258,9 @@ function freeSpacePathLoss(frequency, distance) {
  * @returns {number} Fresnel zone radius in meters
  */
 function fresnelZoneRadius(frequency, distance1, distance2, zone = 1) {
-    const wavelength = frequencyToWavelength(frequency, 'Hz');
     const totalDistance = distance1 + distance2;
+    if (totalDistance <= 0) return 0;
+    const wavelength = frequencyToWavelength(frequency, 'Hz');
     return Math.sqrt((zone * wavelength * distance1 * distance2) / totalDistance);
 }
 

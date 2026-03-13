@@ -8,14 +8,16 @@ let presets = {};
  */
 function initializeUI() {
     // Load saved theme
-    const savedTheme = localStorage.getItem('freqradio-theme');
+    let savedTheme;
+    try { savedTheme = localStorage.getItem('freqradio-theme'); } catch (_) {}
     if (savedTheme) {
         currentTheme = savedTheme;
         applyTheme(currentTheme);
     }
     
     // Load saved presets
-    const savedPresets = localStorage.getItem('freqradio-presets');
+    let savedPresets;
+    try { savedPresets = localStorage.getItem('freqradio-presets'); } catch (_) {}
     if (savedPresets) {
         try {
             presets = JSON.parse(savedPresets);
@@ -165,7 +167,7 @@ function showTab(tabName) {
     }
     
     // Save current tab
-    localStorage.setItem('freqradio-current-tab', tabName);
+    try { localStorage.setItem('freqradio-current-tab', tabName); } catch (_) {}
 }
 
 /**
@@ -174,7 +176,7 @@ function showTab(tabName) {
 function toggleTheme() {
     currentTheme = currentTheme === 'light' ? 'dark' : 'light';
     applyTheme(currentTheme);
-    localStorage.setItem('freqradio-theme', currentTheme);
+    try { localStorage.setItem('freqradio-theme', currentTheme); } catch (_) {}
 }
 
 /**
@@ -313,7 +315,7 @@ function showSettings() {
         radio.addEventListener('change', (e) => {
             currentTheme = e.target.value;
             applyTheme(currentTheme);
-            localStorage.setItem('freqradio-theme', currentTheme);
+            try { localStorage.setItem('freqradio-theme', currentTheme); } catch (_) {}
         });
     });
     
@@ -431,7 +433,7 @@ function setupKeyboardNavigation() {
         if (e.ctrlKey && e.key >= '1' && e.key <= '7') {
             e.preventDefault();
             const tabs = ['antenna', 'rf-circuits', 'transmission', 'propagation', 'conversions', 'radar-satellite', 'iot'];
-            const tabIndex = parseInt(e.key) - 1;
+            const tabIndex = parseInt(e.key, 10) - 1;
             if (tabs[tabIndex]) {
                 showTab(tabs[tabIndex]);
             }
@@ -506,10 +508,10 @@ function savePreset(name) {
     presets[name] = {
         data: formData,
         timestamp: Date.now(),
-        tab: document.querySelector('.tab-content.active').id
+        tab: (document.querySelector('.tab-content.active') || {}).id || ''
     };
     
-    localStorage.setItem('freqradio-presets', JSON.stringify(presets));
+    try { localStorage.setItem('freqradio-presets', JSON.stringify(presets)); } catch (_) {}
     alert(`Preset "${name}" saved successfully!`);
 }
 
@@ -583,12 +585,12 @@ function importSettings() {
                 if (settings.theme) {
                     currentTheme = settings.theme;
                     applyTheme(currentTheme);
-                    localStorage.setItem('freqradio-theme', currentTheme);
+                    try { localStorage.setItem('freqradio-theme', currentTheme); } catch (_) {}
                 }
                 
                 if (settings.presets) {
                     presets = settings.presets;
-                    localStorage.setItem('freqradio-presets', JSON.stringify(presets));
+                    try { localStorage.setItem('freqradio-presets', JSON.stringify(presets)); } catch (_) {}
                 }
                 
                 alert('Settings imported successfully!');
@@ -614,14 +616,14 @@ function resetSettings() {
     // Reset theme
     currentTheme = 'light';
     applyTheme(currentTheme);
-    localStorage.removeItem('freqradio-theme');
+    try { localStorage.removeItem('freqradio-theme'); } catch (_) {}
     
     // Clear presets
     presets = {};
-    localStorage.removeItem('freqradio-presets');
+    try { localStorage.removeItem('freqradio-presets'); } catch (_) {}
     
     // Clear current tab
-    localStorage.removeItem('freqradio-current-tab');
+    try { localStorage.removeItem('freqradio-current-tab'); } catch (_) {}
     
     alert('Settings reset to defaults!');
 }

@@ -228,7 +228,7 @@ function calculateDipole() {
 function calculateYagi() {
     const frequency = parseFloat(document.getElementById('yagi-freq').value);
     const freqUnit = document.getElementById('yagi-freq-unit').value;
-    const elements = parseInt(document.getElementById('yagi-elements').value) || 5;
+    const elements = parseInt(document.getElementById('yagi-elements').value, 10) || 5;
     const boomLength = parseFloat(document.getElementById('yagi-boom-length').value);
     const boomUnit = document.getElementById('yagi-boom-unit').value;
     
@@ -532,8 +532,8 @@ function calculatePatch() {
         return;
     }
     
-    if (!validateInput(substrateEr, 1, 15)) {
-        showError('patch-substrate-er', 'Please enter a valid dielectric constant (1-15)');
+    if (!isFinite(substrateEr) || substrateEr <= 1 || substrateEr > 15) {
+        showError('patch-substrate-er', 'Please enter a valid dielectric constant (> 1 and <= 15)');
         return;
     }
     
@@ -543,6 +543,10 @@ function calculatePatch() {
     try {
         const freqHz = frequency * CONSTANTS.FREQ_UNITS[freqUnit];
         const thicknessM = convertUnits(thickness, thicknessUnit, 'm', CONSTANTS.LENGTH_UNITS);
+        
+        if (thicknessM <= 0) {
+            throw new Error('Substrate thickness must be greater than zero');
+        }
         
         // Calculate effective dielectric constant
         const effectiveEr = (substrateEr + 1) / 2 + 
